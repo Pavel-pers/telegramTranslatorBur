@@ -11,7 +11,32 @@ ff1 = False
 ff2 = -1
 ff3 = False
 stop = False
-# try:
+
+
+def num_to_word(a):
+    numb_names = [["", "нэгэн", "хоёр", "гурбан", "дүрбэн", "табан", "зургаан", "долоон", "найман", "юһэн"],
+                  ["", "арбан", "хорин", "гушан", "душан",
+                   "табин", "жаран", "далан", "наян", "ерэн"],
+                  ]
+
+    numb_suffixes = ["",
+                     "",
+                     " зуун",
+                     " мянга",
+                     "",
+                     " зуун",
+                     " миллион"]
+
+    lst = [int(i) for i in list(a)]
+    n = len(lst)
+    ans = ""
+    if n > 7:
+        return "error404, число слишком большое (лимит чисел - 1-9999999)"
+    for i in range(0, n):
+        ans += ((numb_names[0 if (n - i - 1) % 3 != 1 else 1]
+                 [lst[i]] + numb_suffixes[n - 1 - i]) if lst[i] else "") + " "
+    ans = ans.rstrip()
+    return ans
 
 
 bot = telebot.TeleBot(bot_tokens.telegramm)
@@ -22,8 +47,8 @@ while 1:
         def welcome(message):
 
 
-            db = sqlite3.connect("translate.db")
-            sql = db.cursor()
+            # db = sqlite3.connect("translate.db")
+            # sql = db.cursor()
             markup = types.ReplyKeyboardMarkup(resize_keyboard=1)
             key1 = types.KeyboardButton("Перевод слов")
             key2 = types.KeyboardButton("Я хочу потренероватся")
@@ -63,20 +88,24 @@ while 1:
                 else:
                     ww = str(message.text)
                     ww = ww.lower()
+                    try:
+                        ww = int(ww)
+                        bot.send_message(message.chat.id, num_to_word(str(ww)))
 
-                    sql.execute(f"SELECT * FROM translates WHERE russian = '{ww}'")
-                    translate_w = sql.fetchone()
+                    except:
+                        sql.execute(f"SELECT * FROM translates WHERE russian = '{ww}'")
+                        translate_w = sql.fetchone()
 
-                    if translate_w is None:
-                        bot.send_message(
-                            message.chat.id, 'К сожалению такого слова еще нет ):')
-                    else:
-                        bot.send_message(
-                            message.chat.id, str(translate_w[1] + "\nэто слово переводили - " + str(translate_w[2]) + " человек!"))
-                        r23 = translate_w[2] + 1
-                        sql.execute(
-                            f"UPDATE translates SET used = {r23} WHERE russian = '{ww}'")
-                        db.commit()
+                        if translate_w is None:
+                            bot.send_message(
+                                message.chat.id, 'К сожалению такого слова еще нет ):')
+                        else:
+                            bot.send_message(
+                                message.chat.id, str(translate_w[1] + "\nэто слово переводили - " + str(translate_w[2]) + " человек!"))
+                            r23 = translate_w[2] + 1
+                            sql.execute(
+                                f"UPDATE translates SET used = {r23} WHERE russian = '{ww}'")
+                            db.commit()
                     ff2 = -1
 
                 markup = types.InlineKeyboardMarkup(row_width=2)
@@ -99,7 +128,7 @@ while 1:
                     ff1 = False
                 elif message.text == 'Русский':
                     bot.send_message(
-                        message.chat.id, 'ок теперь введи на слово на русском и я его переведу!',
+                        message.chat.id, 'ок теперь введи на слово на русском или число и я его переведу!',
                         reply_markup=types.ReplyKeyboardRemove())
                     ff2 = 2
                     ff1 = False
@@ -128,8 +157,8 @@ while 1:
 
         @bot.callback_query_handler(func=lambda call: True)
         def callback_inline(call):
-            db = sqlite3.connect("translate.db")
-            sql = db.cursor()
+            # db = sqlite3.connect("translate.db")
+            # sql = db.cursor()
 
             if call.message:
                 if call.data == 'y':
