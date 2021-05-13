@@ -116,7 +116,7 @@ for event in longpoll.listen():
                     cur.execute("SELECT * FROM translates")
                     rows = cur.fetchall()
                     o = 0
-
+                    
                     for j in rows:
                         ratio = fuzz.token_sort_ratio(i, j[ind1])
                         if ratio > mx:
