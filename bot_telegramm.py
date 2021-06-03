@@ -5,7 +5,7 @@ import bot_tokens
 import sqlite3
 from fuzzywuzzy import fuzz
 
-db = sqlite3.connect("translate.db")
+db = sqlite3.connect("_DB.db")
 sql = db.cursor()
 db.commit()
 
@@ -63,7 +63,7 @@ while 1:
         def main(message):
             global ff1
             global ff2
-            db = sqlite3.connect("translate.db")
+            db = sqlite3.connect("_DB.db")
             sql = db.cursor()
 
             #? ПЕРЕВОД С БУРЯТСКОГО
@@ -89,7 +89,7 @@ while 1:
                             f"SELECT * FROM translates WHERE buryat = '{ww}'")
                         translate_w = sql.fetchone()
                         bot.send_message(
-                            message.chat.id, str(f"*{translate_w[0]}*\nэто слово переводили - {translate_w[2]} человек!"), parse_mode='Markdown')
+                            message.chat.id, str(f"*{translate_w[0]}*\nэто слово переводили - {translate_w[3]} человек!"), parse_mode='Markdown')
                         r23 = translate_w[2] + 1
                         sql.execute(
                             f"UPDATE translates SET used = {r23} WHERE buryat = '{ww}'")
@@ -99,7 +99,7 @@ while 1:
                             f"SELECT * FROM translates WHERE buryat = '{str1}'")
                         translate_w = sql.fetchone()
                         bot.send_message(
-                            message.chat.id, str(f"*{translate_w[0]}* _(возможно вы имели ввиду {str1})_\nэто слово переводили - {translate_w[2]} человек!"), parse_mode='Markdown')
+                            message.chat.id, str(f"*{translate_w[0]}* _(возможно вы имели ввиду {str1})_\nэто слово переводили - {translate_w[3]} человек!"), parse_mode='Markdown')
                         r23 = translate_w[2] + 1
                         sql.execute(
                             f"UPDATE translates SET used = {r23} WHERE buryat = '{str1}'")
@@ -145,7 +145,7 @@ while 1:
                                 f"SELECT * FROM translates WHERE russian = '{ww}'")
                             translate_w = sql.fetchone()
                             bot.send_message(
-                                message.chat.id, str(f"*{translate_w[1]}*\nэто слово переводили - {translate_w[2]} человек!"), parse_mode='Markdown')
+                                message.chat.id, str(f"*{translate_w[1]}*\nэто слово переводили - {translate_w[3]} человек!"), parse_mode='Markdown')
                             r23 = translate_w[2] + 1
                             sql.execute(
                                 f"UPDATE translates SET used = {r23} WHERE russian = '{ww}'")
@@ -155,7 +155,7 @@ while 1:
                                 f"SELECT * FROM translates WHERE russian = '{str1}'")
                             translate_w = sql.fetchone()
                             bot.send_message(
-                                message.chat.id, str(f"*{translate_w[1]}* _(возможно вы имели ввиду {str1})_\nэто слово переводили - {translate_w[2]} человек!"), parse_mode='Markdown')
+                                message.chat.id, str(f"*{translate_w[1]}* _(возможно вы имели ввиду {str1})_\nэто слово переводили - {translate_w[3]} человек!"), parse_mode='Markdown')
                             r23 = translate_w[2] + 1
                             sql.execute(
                                 f"UPDATE translates SET used = {r23} WHERE russian = '{str1}'")
@@ -166,49 +166,50 @@ while 1:
                                 message.chat.id, 'К сожалению такого слова еще нет ):')
 
                     ff2 = -1
+                #? Перевод с нгл
                 elif ff2 == 3:
                     ww = str(message.text)
                     ww = ww.lower()
-
-                    translator = Translator()
-                    d_lang = translator.detect(ww).lang
-                    sql.execute(
-                        "SELECT * FROM translates")
+                    #
+                    sql.execute("SELECT * FROM translates")
                     rows = sql.fetchall()
                     o = 0
                     mx = 0
                     for j in rows:
-                        print(j)
-                        ratio = fuzz.token_sort_ratio(ww, translator.translate(j[0], dest = d_lang))
+                        ratio = fuzz.token_sort_ratio(ww, j[2])
                         if ratio > mx:
                             mx = ratio
-                            str1 = j[0]
+                            str1 = j[2]
+
                     #? вывод
-                    
                     if mx == 100:
                         sql.execute(
-                            f"SELECT * FROM translates WHERE russian = '{ww}'")
+                            f"SELECT * FROM translates WHERE english = '{ww}'")
                         translate_w = sql.fetchone()
+                        print(translate_w)
                         bot.send_message(
-                            message.chat.id, str(f"*{translate_w[1]}*\nэто слово переводили - {translate_w[2]} человек!"), parse_mode='Markdown')
-                        r23 = translate_w[2] + 1
+                            message.chat.id, str(f"*{translate_w[1]}*\nэто слово переводили - {translate_w[3]} человек!"), parse_mode='Markdown')
+                        r23 = translate_w[3] + 1
                         sql.execute(
-                            f"UPDATE translates SET used = {r23} WHERE russian = '{ww}'")
+                            f"UPDATE translates SET used = {r23} WHERE english = '{ww}'")
                         db.commit()
                     elif mx >= 70:
                         sql.execute(
-                            f"SELECT * FROM translates WHERE russian = '{str1}'")
+                            f"SELECT * FROM translates WHERE english = '{str1}'")
                         translate_w = sql.fetchone()
                         bot.send_message(
-                            message.chat.id, str(f"*{translate_w[1]}* _(возможно вы имели ввиду {translator.translate(str1, dest = d_lang)})_\nэто слово переводили - {translate_w[2]} человек!"), parse_mode='Markdown')
-                        r23 = translate_w[2] + 1
+                            message.chat.id, str(f"*{translate_w[1]}* _(возможно вы имели ввиду {str1})_\nэто слово переводили - {translate_w[3]} человек!"), parse_mode='Markdown')
+                        r23 = translate_w[3] + 1
                         sql.execute(
-                            f"UPDATE translates SET used = {r23} WHERE russian = '{str1}'")
+                            f"UPDATE translates SET used = {r23} WHERE buryat = '{str1}'")
                         db.commit()
 
                     else:
                         bot.send_message(
                             message.chat.id, 'К сожалению такого слова еще нет ):')
+
+                    #
+                    ff2 = -1
 
 
                 markup = types.InlineKeyboardMarkup(row_width=2)
@@ -235,7 +236,7 @@ while 1:
                         reply_markup=types.ReplyKeyboardRemove())
                     ff2 = 2
                     ff1 = False
-                elif message.text == 'Свой язык':
+                elif message.text == 'Английский':
                     bot.send_message(
                         message.chat.id, 'ок теперь введи на слово и я его переведу!',
                         reply_markup=types.ReplyKeyboardRemove())
@@ -254,7 +255,7 @@ while 1:
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=1)
                 key1 = types.KeyboardButton('Бурятский')
                 key2 = types.KeyboardButton('Русский')
-                key3 = types.KeyboardButton('Свой язык')
+                key3 = types.KeyboardButton('Английский')
                 markup.add(key1, key2, key3)
 
                 bot.send_message(
@@ -283,7 +284,7 @@ while 1:
                     markup = types.ReplyKeyboardMarkup(resize_keyboard=1)
                     key1 = types.KeyboardButton('Бурятский')
                     key2 = types.KeyboardButton('Русский')
-                    key3 = types.KeyboardButton('Свой язык')
+                    key3 = types.KeyboardButton('Английский')
                     markup.add(key1, key2, key3)
 
                     bot.send_message(
