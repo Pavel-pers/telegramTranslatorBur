@@ -4,6 +4,7 @@ fl = input("DB file ")
 
 con = sql.connect(fl + ".db")
 with con:
+
     cur = con.cursor()
     cur.execute("SELECT * FROM translates")
     rows = cur.fetchall()
@@ -13,5 +14,4 @@ with con:
             print(g, end = ('- '))
         print()
 
-    con.commit()
     cur.close()

@@ -29,17 +29,6 @@ stickers = [80, 21355, 61, 8334, 11748, 21369, 21363, 15802, 15810, 1457, 1460, 
 ind1 = 0
 ind2 = 1
 rus_bur = ['русский', 'бурятский']
-dictionary = [['привет', 'сайн байна'], ['пока', 'баяртай'],
-              ['работа', 'ажал'],
-              ['ручка', 'гархан'], ['пенал', 'пенал'],
-              ['тетрадь', 'дэбтэр'], ['учебник', 'ном'],
-              ['карандаш', 'харандааш'], ['учитель', 'багша'],
-              ['учительская', 'багшанарай таһалга'], ['директор', 'дарга'],
-              ['ученик', 'һурагша'], ['завуч', 'завуч'],
-              ['английский язык', 'англи хэлэн'], [
-                  'бурятский', 'буряадай хэлэн'],
-              ['русский язык', 'ородой хэлэн'], ['школа', 'һургуули']
-              ]
 
 numb_names = [["", "нэгэн", "хоёр", "гурбан", "дүрбэн", "табан", "зургаан", "долоон", "найман", "юһэн"],
               ["", "арбан", "хорин", "гушан", "душан",
@@ -70,7 +59,9 @@ def num_to_word(a):
     ans = ans.rstrip()
     return ans
 
-
+def get_name(uid: int) -> str:
+    data = authorize.method("users.get", {"user_ids": uid})[0]
+    return "{} {}".format(data["first_name"], data["last_name"])
 
 authorize = vk_api.VkApi(token=token)
 longpoll = VkLongPoll(authorize)
@@ -79,12 +70,11 @@ def create_keyboard(response):
 
     if response == 'тест':
 
-        keyboard.add_button('Русский', color=VkKeyboardColor.DEFAULT)
-        keyboard.add_button('Бурятский', color=VkKeyboardColor.DEFAULT)
-        keyboard.add_button('Английский', color=VkKeyboardColor.DEFAULT)
+        keyboard.add_button('Русский', color=VkKeyboardColor.SECONDARY)
+        keyboard.add_button('Бурятский', color=VkKeyboardColor.SECONDARY)
+        keyboard.add_button('Английский', color=VkKeyboardColor.SECONDARY)
 
     elif response == 'закрыть':
-        print('закрываем клаву')
         return keyboard.get_empty_keyboard()
 
     keyboard = keyboard.get_keyboard()
@@ -93,9 +83,9 @@ gb = 0
 
 for event in longpoll.listen():
     if event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text:
-
         received_message = event.text.lower()
         sender = event.user_id
+        print(f"{get_name(sender)} написал - <{received_message}>")
         if gb:
 
             flg = 0
@@ -134,15 +124,18 @@ for event in longpoll.listen():
                         cur.execute("SELECT * FROM translates")
                         rows = cur.fetchall()
                         o = 0
-
+                        strdp = ''
                         for j in rows:
                             ratio = fuzz.token_sort_ratio(i, j[ind1])
                             if ratio > mx:
                                 mx = ratio
                                 str1 = j[ind1]
                                 str2 = j[ind2]
+                                strdp = j[3 - ind1 - ind2]
                         con.commit()
                         cur.close()
+                    if mx >= 58:
+                        print(f"из <{str1}> в <{str2}> другой перевод - <{strdp}>")
                     if mx == 100:
                         ans += str2 + ', '
                     elif mx >= 58:

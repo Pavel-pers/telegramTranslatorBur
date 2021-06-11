@@ -1,5 +1,3 @@
-from bs4 import BeautifulSoup
-import requests
 import sqlite3
 import time
 from googletrans import Translator
@@ -21,18 +19,22 @@ used BIGINT
 db1.commit()
 
 
-
-sql.execute(
-    "SELECT * FROM translates")
+hgj = Translator()
+sql.execute("SELECT * FROM translates")
 rows = sql.fetchall()
 o = 0
 mx = 0
 pp = 0
 for j in rows:
     if pp:
-        print(j[0])
-        sql1.execute(f"DELETE from translates where english = ?", (j[0], ))
+        nh = hgj.translate(j[0], src = "ru").text.lower()
+        print(nh, j[0])
+        sql1.execute(
+            "INSERT INTO translates VALUES (?, ?, ?, ?)",
+            (str(j[0]), str(j[1]), str(nh), int(1)))
         db1.commit()
+
+        time.sleep(1)
     else:
         if j[0] == 'приползти':
             pp = 1
