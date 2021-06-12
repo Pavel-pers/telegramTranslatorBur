@@ -50,7 +50,7 @@ for rus_name in rus_str:
             bur_name = (str(item).replace('<li>', '').replace('</li>', ''))
 
             #СОХРАНЕНИЕ ПЕРЕВОДА В БД
-            if bur_name != 'None':
+            if bur_name == 'None':
                 sql.execute("SELECT buryat FROM translates WHERE russian = ?", (rus_name, ))
                 hg = sql.fetchone()
                 if hg != None:

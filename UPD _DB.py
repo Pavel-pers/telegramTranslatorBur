@@ -28,8 +28,8 @@ pp = 0
 for j in rows:
     if pp:
         nh = hgj.translate(j[0], src = "ru").text.lower()
-        sql1.execute("SELECT buryat FROM translates WHERE russian = ?", (j))
-        if sql1.fetchone() != None:
+        sql1.execute("SELECT buryat FROM translates WHERE russian = ?", (j[0],))
+        if sql1.fetchone() == None:
             print(nh, j[0])
             sql1.execute(
                 "INSERT INTO translates VALUES (?, ?, ?, ?)",
