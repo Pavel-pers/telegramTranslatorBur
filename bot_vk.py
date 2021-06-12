@@ -1,12 +1,12 @@
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.utils import get_random_id
-import random
 from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
 import Levenshtein
 import bot_tokens
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
+import sqlite3 as sql
+import time
 
 
 token = bot_tokens.vk
@@ -29,6 +29,7 @@ stickers = [80, 21355, 61, 8334, 11748, 21369, 21363, 15802, 15810, 1457, 1460, 
 ind1 = 0
 ind2 = 1
 rus_bur = ['русский', 'бурятский']
+con = sql.connect('_DB.db')
 
 numb_names = [["", "нэгэн", "хоёр", "гурбан", "дүрбэн", "табан", "зургаан", "долоон", "найман", "юһэн"],
               ["", "арбан", "хорин", "гушан", "душан",
@@ -87,6 +88,7 @@ for event in longpoll.listen():
         sender = event.user_id
         print(f"{get_name(sender)} написал - <{received_message}>")
         if gb:
+            nw_qn = time.time()
 
             flg = 0
             for i in received_message:
@@ -108,7 +110,7 @@ for event in longpoll.listen():
             if len(words) == 0:
                 write_message(
                     sender, "Я вас не понимаю... Скорее всего, этого слова нет в словаре")
-                send_sticker(sender, stickers[random.randint(0, 22)])
+                send_sticker(sender, stickers[0])
             #print(words, received_message)
             if flg:
                 ans = ''
@@ -116,9 +118,8 @@ for event in longpoll.listen():
                 for i in words:
                     mx = 0
                     str1 = ''
-                    import sqlite3 as sql
 
-                    con = sql.connect('_DB.db')
+                    erhgj = time.time()    
                     with con:
                         cur = con.cursor()
                         cur.execute("SELECT * FROM translates")
@@ -135,7 +136,8 @@ for event in longpoll.listen():
                         con.commit()
                         cur.close()
                     if mx >= 58:
-                        print(f"из <{str1}> в <{str2}> другой перевод - <{strdp}>")
+                        print(
+                            f"из <{str1}> в <{str2}> другой перевод - <{strdp}>\nВремя затраченное на перевод %s" % round((time.time() - erhgj),2))
                     if mx == 100:
                         ans += str2 + ', '
                     elif mx >= 58:
@@ -150,6 +152,7 @@ for event in longpoll.listen():
             keyboard = create_keyboard('тест')
             authorize.method('messages.send', {
                     'user_id': sender, 'message': "Выбери язык из кнопок внизу", 'random_id': get_random_id(), 'keyboard': keyboard})
+            print("Время отклика на перевод %s" % round((time.time() - nw_qn), 2))
 
         else:
             if received_message == "русский":
