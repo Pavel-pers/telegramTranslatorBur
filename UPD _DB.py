@@ -28,11 +28,13 @@ pp = 0
 for j in rows:
     if pp:
         nh = hgj.translate(j[0], src = "ru").text.lower()
-        print(nh, j[0])
-        sql1.execute(
-            "INSERT INTO translates VALUES (?, ?, ?, ?)",
-            (str(j[0]), str(j[1]), str(nh), int(1)))
-        db1.commit()
+        sql1.execute("SELECT buryat FROM translates WHERE russian = ?", (j))
+        if sql1.fetchone() != None:
+            print(nh, j[0])
+            sql1.execute(
+                "INSERT INTO translates VALUES (?, ?, ?, ?)",
+                (str(j[0]), str(j[1]), str(nh), int(1)))
+            db1.commit()
 
         time.sleep(1)
     else:

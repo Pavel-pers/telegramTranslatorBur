@@ -51,9 +51,12 @@ for rus_name in rus_str:
 
             #СОХРАНЕНИЕ ПЕРЕВОДА В БД
             if bur_name != 'None':
-                sql.execute("INSERT INTO translates VALUES (?, ?, ?)",
-                            (str(rus_name), str(bur_name), int(0)))
-                db.commit()
+                sql.execute("SELECT buryat FROM translates WHERE russian = ?", (rus_name, ))
+                hg = sql.fetchone()
+                if hg != None:
+                    sql.execute("INSERT INTO translates VALUES (?, ?, ?)",
+                                (str(rus_name), str(bur_name), int(0)))
+                    db.commit()
             return
         except:
             time.sleep(10)
