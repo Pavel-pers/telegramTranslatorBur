@@ -50,10 +50,13 @@ for rus_name in rus_str:
             bur_name = (str(item).replace('<li>', '').replace('</li>', ''))
 
             #СОХРАНЕНИЕ ПЕРЕВОДА В БД
-            if bur_name != 'None':
-                sql.execute("INSERT INTO translates VALUES (?, ?, ?)",
-                            (str(rus_name), str(bur_name), int(0)))
-                db.commit()
+            if bur_name == 'None':
+                sql.execute("SELECT buryat FROM translates WHERE russian = ?", (rus_name, ))
+                hg = sql.fetchone()
+                if hg != None:
+                    sql.execute("INSERT INTO translates VALUES (?, ?, ?)",
+                                (str(rus_name), str(bur_name), int(0)))
+                    db.commit()
             return
         except:
             time.sleep(10)
