@@ -43,7 +43,7 @@ def num_to_word(a):
     return ans
 
 
-bot = telebot.TeleBot(tokens.telegramm)
+bot = telebot.TeleBot(input())
 while 1:
     # try:
         @bot.message_handler(commands=['start'])
