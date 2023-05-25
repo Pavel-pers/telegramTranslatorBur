@@ -1,2 +1,2 @@
 *.gitinore
-tokens.py
+/tokens

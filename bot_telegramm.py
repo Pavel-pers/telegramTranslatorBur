@@ -1,7 +1,6 @@
 from googletrans import Translator
 import telebot
 from telebot import types
-import tokens
 import sqlite3
 from fuzzywuzzy import fuzz
 import random
@@ -56,7 +55,6 @@ while 1:
             key2 = types.KeyboardButton("Я хочу потренироваться  ")
             key3 = types.KeyboardButton("факт о Бурятии")
             markup.add(key1, key2, key3)
-
             bot.send_message(message.chat.id, f"Привет *{message.from_user.first_name}*\nЯ бот который поможет тебе с бурятским языком.\n Выбери функцию которую хочешь чтобы я выполнил",
                              parse_mode='Markdown', reply_markup=markup)
 
